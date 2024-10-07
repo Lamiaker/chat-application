@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebSocket Chat</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <div id="chat"></div>
+    <input type="text" id="message" placeholder="Type a message..." autocomplete="off">
+
+    <script>
+        // Initialiser la connexion WebSocket
+        const socket = new WebSocket('ws://localhost:3000');
+
+        // Quand un message est reçu
+        socket.addEventListener('message', function (event) {
+            const chat = document.getElementById('chat');
+            const message = document.createElement('div');
+            message.classList.add('message', 'received'); // Messages reçus sont affichés à gauche
+            message.textContent = event.data;
+            chat.appendChild(message);
+            chat.scrollTop = chat.scrollHeight;  // Scroller automatiquement vers le bas
+        });
+
+        // Envoyer un message lorsqu'on appuie sur "Entrée"
+        const input = document.getElementById('message');
+        input.addEventListener('keypress', function (event) {
+            if (event.key === 'Enter' && input.value) {
+                const messageText = input.value;
+
+                // Afficher le message de l'utilisateur local à droite
+                const chat = document.getElementById('chat');
+                const message = document.createElement('div');
+                message.classList.add('message', 'sent'); // Messages envoyés sont affichés à droite
+                message.textContent = `You: ${messageText}`;
+                chat.appendChild(message);
+                chat.scrollTop = chat.scrollHeight;
+
+                // Envoyer le message au serveur
+                socket.send(messageText);
+
+                // Vider l'input après envoi
+                input.value = '';
+            }
+        });
+    </script>
+</body>
+
+</html>
